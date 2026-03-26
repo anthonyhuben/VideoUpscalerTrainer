@@ -1,0 +1,177 @@
+================================================================================
+CHECKPOINT INSPECTOR
+================================================================================
+
+Checking: ./base_models/2x_SuperUltraCompact_Pretrain_nf24_nc8_traiNNer.pth
+
+✅ File found (size: 0.18 MB)
+Loading checkpoint...
+
+✅ Checkpoint loaded successfully
+
+State dict source: root level
+Checkpoint keys: ['body.0.weight', 'body.0.bias', 'body.1.weight', 'body.2.weight', 'body.2.bias', 'body.3.weight', 'body.4.weight', 'body.4.bias', 'body.5.weight', 'body.6.weight', 'body.6.bias', 'body.7.weight', 'body.8.weight', 'body.8.bias', 'body.9.weight', 'body.10.weight', 'body.10.bias', 'body.11.weight', 'body.12.weight', 'body.12.bias', 'body.13.weight', 'body.14.weight', 'body.14.bias', 'body.15.weight', 'body.16.weight', 'body.16.bias', 'body.17.weight', 'body.18.weight', 'body.18.bias']
+
+State dict size: 29 parameters
+
+================================================================================
+PARAMETERS BY GROUP:
+================================================================================
+
+body (29 tensors, 45,156 params)
+--------------------------------------------------------------------------------
+  body.0.bias                                        (24,)                     float32    (24)
+  body.0.weight                                      (24, 3, 3, 3)             float32    (648)
+  body.1.weight                                      (24,)                     float32    (24)
+  body.10.bias                                       (24,)                     float32    (24)
+  body.10.weight                                     (24, 24, 3, 3)            float32    (5,184)
+  body.11.weight                                     (24,)                     float32    (24)
+  body.12.bias                                       (24,)                     float32    (24)
+  body.12.weight                                     (24, 24, 3, 3)            float32    (5,184)
+  body.13.weight                                     (24,)                     float32    (24)
+  body.14.bias                                       (24,)                     float32    (24)
+  body.14.weight                                     (24, 24, 3, 3)            float32    (5,184)
+  body.15.weight                                     (24,)                     float32    (24)
+  body.16.bias                                       (24,)                     float32    (24)
+  body.16.weight                                     (24, 24, 3, 3)            float32    (5,184)
+  body.17.weight                                     (24,)                     float32    (24)
+  ... and 14 more
+
+================================================================================
+DATA TYPE ANALYSIS:
+================================================================================
+Analyzing dtypes: 100%|█████████████████████████████████████████████████████████████| 29/29 [00:00<00:00, 267918.10it/s]
+
+Dtype breakdown:
+--------------------------------------------------------------------------------
+  torch.float32   |    29 tensors |       45,156 params |     0.17 MB (100.0%)
+
+Total memory: 0.17 MB (0.000 GB)
+
+================================================================================
+SHAPE PATTERNS:
+================================================================================
+Analyzing shapes: 100%|████████████████████████████████████████████████████████████| 29/29 [00:00<00:00, 1204305.11it/s]
+
+Top 20 shape patterns:
+--------------------------------------------------------------------------------
+  (24,)                          |   18 tensors | float32  | 24 params
+  (24, 24, 3, 3)                 |    8 tensors | float32  | 5,184 params
+  (24, 3, 3, 3)                  |    1 tensors | float32  | 648 params
+  (12, 24, 3, 3)                 |    1 tensors | float32  | 2,592 params
+  (12,)                          |    1 tensors | float32  | 12 params
+
+================================================================================
+TENSOR VALUE STATISTICS:
+================================================================================
+Analyzing values: 100%|███████████████████████████████████████████████████████████████| 29/29 [00:00<00:00, 2240.05it/s]
+
+================================================================================
+ARCHITECTURE ANALYSIS:
+================================================================================
+
+Body layers: 29 tensors
+Layer indices: 0 to 18 (19 total)
+
+Body structure (first 25 layers):
+--------------------------------------------------------------------------------
+  body.0: bias, weight
+           └─ body.0.weight → (24, 3, 3, 3)
+  body.1: weight
+           └─ body.1.weight → (24,)
+  body.2: bias, weight
+           └─ body.2.weight → (24, 24, 3, 3)
+  body.3: weight
+           └─ body.3.weight → (24,)
+  body.4: bias, weight
+           └─ body.4.weight → (24, 24, 3, 3)
+  body.5: weight
+           └─ body.5.weight → (24,)
+  body.6: bias, weight
+           └─ body.6.weight → (24, 24, 3, 3)
+  body.7: weight
+           └─ body.7.weight → (24,)
+  body.8: bias, weight
+           └─ body.8.weight → (24, 24, 3, 3)
+  body.9: weight
+           └─ body.9.weight → (24,)
+  body.10: bias, weight
+           └─ body.10.weight → (24, 24, 3, 3)
+  body.11: weight
+           └─ body.11.weight → (24,)
+  body.12: bias, weight
+           └─ body.12.weight → (24, 24, 3, 3)
+  body.13: weight
+           └─ body.13.weight → (24,)
+  body.14: bias, weight
+           └─ body.14.weight → (24, 24, 3, 3)
+  body.15: weight
+           └─ body.15.weight → (24,)
+  body.16: bias, weight
+           └─ body.16.weight → (24, 24, 3, 3)
+  body.17: weight
+           └─ body.17.weight → (24,)
+  body.18: bias, weight
+           └─ body.18.weight → (12, 24, 3, 3)
+
+--------------------------------------------------------------------------------
+Output/Upsampling layers:
+--------------------------------------------------------------------------------
+
+⚠️  No output/upsampling layers found
+
+--------------------------------------------------------------------------------
+Special layer detection:
+--------------------------------------------------------------------------------
+
+================================================================================
+ARCHITECTURE SUGGESTION:
+================================================================================
+
+First layer (body.0):
+  Conv2d(3, 24, kernel_size=(3, 3))
+  ✅ Takes RGB input (in_channels=3)
+
+Body layer pattern (body.0):
+  bias, weight
+
+Layer type analysis:
+  Conv layers: 19
+  Norm layers: 0
+  Attention layers: 0
+
+Estimated depth: 19 layers
+Complexity estimate: moderate
+
+================================================================================
+MODEL COMPLEXITY ESTIMATION:
+================================================================================
+
+Convolutional layer analysis:
+--------------------------------------------------------------------------------
+Total Conv2D layers: 10
+  Kernel sizes: avg=3.0, max=3
+  Channels: avg=23, max=24
+  Est. receptive field: ~21px
+
+================================================================================
+WARNINGS & COMPATIBILITY NOTES:
+================================================================================
+
+✅ No major compatibility issues detected
+
+================================================================================
+SUMMARY:
+================================================================================
+
+Total parameters: 45,156
+Model size category: Very small (<1M)
+
+Key statistics:
+  Total tensors: 29
+  Top-level groups: 1
+  Memory footprint: 0.17 MB (0.000 GB)
+
+Group sizes:
+  body: 29 tensors, 45,156 params
+================================================================================
