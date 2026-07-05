@@ -2,7 +2,6 @@ import cv2
 import os
 from pathlib import Path
 import argparse
-from tqdm import tqdm
 
 
 def extract_sequences(video_path, output_dir, num_sequences=20, frames_per_sequence=8,
@@ -134,7 +133,7 @@ def process_video_pairs(lr_videos_dir, hr_videos_dir, lr_output_dir, hr_output_d
     lr_videos = sorted(set(lr_videos))
     
     print(f"Found {len(lr_videos)} videos in {lr_videos_dir}")
-    print(f"Configuration:")
+    print("Configuration:")
     print(f"  Sequences per video: {num_sequences}")
     print(f"  Frames per sequence: {frames_per_sequence}")
     print(f"  Skip first/last: {skip_start_frames}/{skip_end_frames} frames")
@@ -171,7 +170,7 @@ def process_video_pairs(lr_videos_dir, hr_videos_dir, lr_output_dir, hr_output_d
         processed_pairs += 1
     
     print(f"\n{'='*60}")
-    print(f"EXTRACTION COMPLETE")
+    print("EXTRACTION COMPLETE")
     print(f"{'='*60}")
     print(f"Processed {processed_pairs} video pairs")
     print(f"Total sequences extracted: {processed_pairs * num_sequences}")
@@ -208,7 +207,7 @@ def main():
     print("="*60)
     print("8-FRAME SEQUENCE EXTRACTOR (WITH BOUNDARY SKIP)")
     print("="*60)
-    print(f"Configuration:")
+    print("Configuration:")
     print(f"  Sequences per video: {args.num_sequences}")
     print(f"  Frames per sequence: {args.frames_per_sequence}")
     print(f"  Skip start frames: {args.skip_start}")

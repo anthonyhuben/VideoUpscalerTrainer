@@ -6,9 +6,7 @@ Pipeline: PyTorch -> ONNX -> NCNN
 import os
 import sys
 import torch
-import torch.nn as nn
 import argparse
-from pathlib import Path
 import shutil
 
 # Import your model architecture
@@ -100,13 +98,13 @@ def convert_onnx_to_ncnn(onnx_path, output_dir):
     bin_path = os.path.join(output_dir, "model.bin")
     
     try:
-        result = subprocess.run(
+        subprocess.run(
             ['onnx2ncnn', onnx_path, param_path, bin_path],
             capture_output=True,
             text=True,
             check=True
         )
-        print(f"✅ NCNN model saved:")
+        print("✅ NCNN model saved:")
         print(f"   Param: {param_path}")
         print(f"   Bin:   {bin_path}")
         return param_path, bin_path
@@ -121,13 +119,13 @@ def optimize_ncnn(param_path, bin_path):
     import subprocess
     
     try:
-        result = subprocess.run(
+        subprocess.run(
             ['ncnnoptimize', param_path, bin_path, param_path, bin_path, '0'],
             capture_output=True,
             text=True,
             check=True
         )
-        print(f"✅ NCNN model optimized")
+        print("✅ NCNN model optimized")
         return True
     except Exception as e:
         print(f"⚠️  Optimization failed: {e}")
@@ -191,7 +189,7 @@ def main():
         # Optionally remove intermediate ONNX
         # os.remove(onnx_path)
     
-    print(f"\n✅ Export complete!")
+    print("\n✅ Export complete!")
     if args.onnx_only:
         print(f"   ONNX only: {onnx_path}")
         print("   Use this ONNX with onnx2ncnn manually or online converters")

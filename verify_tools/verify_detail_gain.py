@@ -344,7 +344,7 @@ DETECTION ANALYSIS:
     if group_stats:
         worst_group = min(group_stats.items(), key=lambda x: x[1]['mean_quality_ratio'])
         best_group = max(group_stats.items(), key=lambda x: x[1]['mean_quality_ratio'])
-        summary += f"\nGROUP INSIGHTS:\n"
+        summary += "\nGROUP INSIGHTS:\n"
         summary += f"  • Best Quality: {best_group[0]} (ratio: {best_group[1]['mean_quality_ratio']:.3f})\n"
         summary += f"  • Needs Review: {worst_group[0]} (ratio: {worst_group[1]['mean_quality_ratio']:.3f})\n"
     
@@ -454,7 +454,7 @@ def validate_detail_gain(lr_dir, hr_dir, num_workers=None, max_size=None,
     
     mean_ratio = np.mean([r['quality_ratio'] for r in results])
     print(f"\nMean Quality Ratio: {mean_ratio:.3f}")
-    print(f"(HR detail / LR detail, should be > 1.0)")
+    print("(HR detail / LR detail, should be > 1.0)")
     
     if critical:
         blurry = [r for r in critical if r.get('issue_type') == 'BLURRY_HR']
@@ -564,7 +564,7 @@ def validate_detail_gain(lr_dir, hr_dir, num_workers=None, max_size=None,
                     row = {'rank': i, **{k: v for k, v in r.items() if k != 'error'}}
                     writer.writerow(row)
         
-        print(f"\n📄 Reports saved:")
+        print("\n📄 Reports saved:")
         print(f"   • {report_path}")
         print(f"   • {csv_path}")
     

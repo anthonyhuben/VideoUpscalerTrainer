@@ -42,7 +42,7 @@ def test_color_pipeline(image_path):
     img_bgr = cv2.imread(image_path, cv2.IMREAD_COLOR)
     
     if img_bgr is None:
-        print(f"❌ Failed to load image")
+        print("❌ Failed to load image")
         return False
     
     print(f"   Shape: {img_bgr.shape}")
@@ -102,7 +102,7 @@ def test_color_pipeline(image_path):
     if max_channel > min_channel * 2:
         print(f"   ⚠️  Channel imbalance detected (ratio: {max_channel/min_channel:.2f})")
     else:
-        print(f"   ✅ Channels reasonably balanced")
+        print("   ✅ Channels reasonably balanced")
     
     print("\n   ✅ TEST 1 COMPLETE: Visual inspection required")
     print("      Compare test_output_correct.png vs test_output_wrong.png")
@@ -129,7 +129,7 @@ def test_model_output_range(image_path, checkpoint_path):
     # Load image
     img = cv2.imread(image_path, cv2.IMREAD_COLOR)
     if img is None:
-        print(f"❌ Failed to load image")
+        print("❌ Failed to load image")
         return False
     
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -138,7 +138,7 @@ def test_model_output_range(image_path, checkpoint_path):
     h, w = img.shape[:2]
     if h > 256 or w > 256:
         img = img[:256, :256]
-        print(f"2.1 Using 256x256 patch for testing")
+        print("2.1 Using 256x256 patch for testing")
     else:
         print(f"2.1 Using full image: {h}x{w}")
     
@@ -238,7 +238,7 @@ def test_model_output_range(image_path, checkpoint_path):
         print("   📊 Impact on training:")
         estimated_loss_multiplier = max(1.0, (max_val - 1.0) * 10)
         print(f"      - Estimated loss amplification: {estimated_loss_multiplier:.1f}x")
-        print(f"      - This explains train loss of 15.2 (should be ~1.0)")
+        print("      - This explains train loss of 15.2 (should be ~1.0)")
         print()
         print("   ✅ SOLUTION:")
         print("      Apply ClampedOutputModel wrapper to your model")
@@ -257,7 +257,7 @@ def test_checkpoint_direct(checkpoint_path, img_t):
     
     checkpoint = torch.load(checkpoint_path, map_location='cpu')
     
-    print(f"\n   Checkpoint contents:")
+    print("\n   Checkpoint contents:")
     if isinstance(checkpoint, dict):
         print(f"      Keys: {list(checkpoint.keys())}")
         if 'epoch' in checkpoint:
@@ -306,14 +306,22 @@ def test_dataset_loading(image_path):
     print(f"   Testing {len(augmentations)} augmentations on {patch_size}x{patch_size} patch")
     
     def apply_aug(img, aug):
-        if aug == 0: return img
-        elif aug == 1: return np.fliplr(img)
-        elif aug == 2: return np.flipud(img)
-        elif aug == 3: return np.rot90(img, 1)
-        elif aug == 4: return np.rot90(img, 2)
-        elif aug == 5: return np.rot90(img, 3)
-        elif aug == 6: return np.fliplr(np.rot90(img, 1))
-        elif aug == 7: return np.flipud(np.rot90(img, 1))
+        if aug == 0:
+            return img
+        if aug == 1:
+            return np.fliplr(img)
+        if aug == 2:
+            return np.flipud(img)
+        if aug == 3:
+            return np.rot90(img, 1)
+        if aug == 4:
+            return np.rot90(img, 2)
+        if aug == 5:
+            return np.rot90(img, 3)
+        if aug == 6:
+            return np.fliplr(np.rot90(img, 1))
+        if aug == 7:
+            return np.flipud(np.rot90(img, 1))
         return img
     
     for aug_id, aug_name in augmentations.items():
@@ -337,13 +345,13 @@ def test_dataset_loading(image_path):
     # Method 1: Standard
     start = time.time()
     for _ in range(100):
-        t1 = torch.from_numpy(img_patch.transpose(2, 0, 1)).float() / 255.0
+        _ = torch.from_numpy(img_patch.transpose(2, 0, 1)).float() / 255.0
     time1 = time.time() - start
     
     # Method 2: Optimized
     start = time.time()
     for _ in range(100):
-        t2 = torch.from_numpy(
+        _ = torch.from_numpy(
             np.ascontiguousarray(img_patch.transpose(2, 0, 1))
         ).float().div_(255.0)
     time2 = time.time() - start

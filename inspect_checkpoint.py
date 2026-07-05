@@ -1,10 +1,8 @@
 import torch
 import sys
 import os
-from pathlib import Path
-from typing import Dict, Any, Optional, Set, Tuple, List
+from typing import Dict, Any, Set, List
 from collections import defaultdict
-import warnings
 
 try:
     from tqdm import tqdm
@@ -74,7 +72,7 @@ class CheckpointInspector:
 
     def _load_checkpoint(self) -> bool:
         """Load checkpoint from disk"""
-        print(f"Loading checkpoint...\n")
+        print("Loading checkpoint...\n")
 
         try:
             self.checkpoint = torch.load(
@@ -99,7 +97,7 @@ class CheckpointInspector:
                     break
             else:
                 self.state_dict = self.checkpoint
-                print(f"State dict source: root level")
+                print("State dict source: root level")
 
             print(f"Checkpoint keys: {list(self.checkpoint.keys())}\n")
         else:
@@ -216,7 +214,7 @@ class CheckpointInspector:
             reverse=True
         )
 
-        print(f"\nTop 20 shape patterns:")
+        print("\nTop 20 shape patterns:")
         print("-" * 80)
 
         for i, (shape, keys) in enumerate(sorted_patterns[:20]):
@@ -486,13 +484,13 @@ class CheckpointInspector:
             shape = weight.shape
             if len(shape) == 4:
                 out_c, in_c, kh, kw = shape
-                print(f"\nFirst layer (body.0):")
+                print("\nFirst layer (body.0):")
                 print(f"  Conv2d({in_c}, {out_c}, kernel_size=({kh}, {kw}))")
 
                 if in_c == 3:
-                    print(f"  ✅ Takes RGB input (in_channels=3)")
+                    print("  ✅ Takes RGB input (in_channels=3)")
                 elif in_c == 1:
-                    print(f"  ⚠️  Takes grayscale input (in_channels=1)")
+                    print("  ⚠️  Takes grayscale input (in_channels=1)")
                 else:
                     print(f"  ℹ️  in_channels={in_c} (custom input)")
         except Exception as e:
@@ -523,7 +521,7 @@ class CheckpointInspector:
 
     def _detect_layer_count_types(self):
         """Detect and count different layer types"""
-        print(f"\nLayer type analysis:")
+        print("\nLayer type analysis:")
 
         body_keys = [k for k in self.state_dict.keys()
                      if k.startswith("body.")]
@@ -616,8 +614,8 @@ class CheckpointInspector:
             print(f"Total Conv2D layers: {len(conv_layers)}")
 
             # Show some statistics
-            kernel_sizes = [l["kh"] for l in conv_layers]
-            out_channels = [l["out_c"] for l in conv_layers]
+            kernel_sizes = [layer["kh"] for layer in conv_layers]
+            out_channels = [layer["out_c"] for layer in conv_layers]
 
             if kernel_sizes:
                 avg_kernel = sum(kernel_sizes) / len(kernel_sizes)
@@ -730,7 +728,7 @@ class CheckpointInspector:
             print(f"\n⚠️  Cannot count parameters: {e}")
 
         # Key statistics
-        print(f"\nKey statistics:")
+        print("\nKey statistics:")
         print(f"  Total tensors: {len(self.state_dict)}")
 
         groups = self._group_by_prefix()
@@ -753,7 +751,7 @@ class CheckpointInspector:
             print(f"  Memory estimate: Unable to calculate ({e})")
 
         # Group sizes
-        print(f"\nGroup sizes:")
+        print("\nGroup sizes:")
         for prefix in sorted(groups.keys()):
             keys = groups[prefix]
             params = self._count_params_in_keys(keys)

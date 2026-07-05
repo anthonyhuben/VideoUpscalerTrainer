@@ -6,7 +6,6 @@ Groups images by prefix (e.g., clip01_sequence00) with statistical analysis
 
 import os
 import csv
-import re
 import numpy as np
 from PIL import Image
 from pathlib import Path
@@ -200,7 +199,6 @@ ASSESSMENT:
 def generate_group_report_section(group_name, stats):
     """Generate detailed section for a single group."""
     status_symbol = "🔴" if stats['critical'] > 0 else ("🟡" if stats['warning'] > 0 else "🟢")
-    overall_status = "CRITICAL" if stats['critical'] > 0 else ("WARNING" if stats['warning'] > 0 else "OK")
     
     section = f"""
 GROUP: {group_name} {status_symbol}
@@ -368,8 +366,6 @@ def validate_dataset(lr_dir, hr_dir, num_workers=None, max_size=None,
             f.write("="*70 + "\n\n")
             
             total_critical = len(critical)
-            total_warning = len(warnings)
-            
             if total_critical == 0 and np.mean(np.abs(mean_diffs)) < 0.01:
                 f.write("✅ VALIDATION PASSED: The dataset demonstrates excellent brightness consistency ")
                 f.write("across all sequence groups. No corrective action required.\n\n")
@@ -413,7 +409,7 @@ def validate_dataset(lr_dir, hr_dir, num_workers=None, max_size=None,
                     }
                     writer.writerow(row)
         
-        print(f"\n📄 Detailed reports saved:")
+        print("\n📄 Detailed reports saved:")
         print(f"   • {report_path}")
         print(f"   • {csv_path}")
     

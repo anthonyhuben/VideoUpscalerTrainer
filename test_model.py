@@ -19,13 +19,13 @@ def test_model_loading(pretrained_path):
     # Check device
     if torch.backends.mps.is_available():
         device = torch.device('mps')
-        print(f"✅ Device: MPS (Apple Silicon GPU)")
+        print("✅ Device: MPS (Apple Silicon GPU)")
     elif torch.cuda.is_available():
         device = torch.device('cuda')
         print(f"✅ Device: CUDA GPU - {torch.cuda.get_device_name(0)}")
     else:
         device = torch.device('cpu')
-        print(f"⚠️  Device: CPU only")
+        print("⚠️  Device: CPU only")
     
     print("\n" + "="*60)
     print("Loading model architecture...")
@@ -45,7 +45,7 @@ def test_model_loading(pretrained_path):
         return False
     
     print("\n" + "="*60)
-    print(f"Loading pretrained weights from:")
+    print("Loading pretrained weights from:")
     print(f"  {pretrained_path}")
     
     try:
@@ -101,20 +101,20 @@ def test_model_loading(pretrained_path):
         
         # Check if it's just missing/unexpected keys
         if "Missing key" in error_str or "Unexpected key" in error_str:
-            print(f"⚠️  Loading with strict=False due to key mismatches...")
+            print("⚠️  Loading with strict=False due to key mismatches...")
             
             # Try non-strict loading
             result = model.load_state_dict(state_dict, strict=False)
             
             if result.missing_keys:
-                print(f"\n❌ Missing keys in checkpoint:")
+                print("\n❌ Missing keys in checkpoint:")
                 for key in result.missing_keys[:10]:
                     print(f"   - {key}")
                 if len(result.missing_keys) > 10:
                     print(f"   ... and {len(result.missing_keys) - 10} more")
             
             if result.unexpected_keys:
-                print(f"\n❌ Unexpected keys in checkpoint:")
+                print("\n❌ Unexpected keys in checkpoint:")
                 for key in result.unexpected_keys[:10]:
                     print(f"   - {key}")
                 if len(result.unexpected_keys) > 10:
@@ -125,8 +125,8 @@ def test_model_loading(pretrained_path):
             
         else:
             # Size mismatch or other error
-            print(f"❌ FAILED to load weights!")
-            print(f"\nError message:")
+            print("❌ FAILED to load weights!")
+            print("\nError message:")
             print(f"  {str(e)[:500]}...")
             print("\n⚠️  The model architecture doesn't match the pretrained weights.")
             print("   This needs to be fixed before training can start.")
@@ -145,15 +145,15 @@ def test_model_loading(pretrained_path):
         with torch.no_grad():
             output = model(dummy_input)
         
-        print(f"✅ Forward pass successful!")
+        print("✅ Forward pass successful!")
         print(f"   Input shape:  {dummy_input.shape}")
         print(f"   Output shape: {output.shape}")
-        print(f"   Expected output shape for 2x upscaler: (1, 3, 128, 128)")
+        print("   Expected output shape for 2x upscaler: (1, 3, 128, 128)")
         
         if output.shape == (1, 3, 128, 128):
             print("   ✅ Output shape is correct!")
         else:
-            print(f"   ⚠️  Output shape is unexpected")
+            print("   ⚠️  Output shape is unexpected")
         
     except Exception as e:
         print(f"❌ Forward pass failed: {e}")

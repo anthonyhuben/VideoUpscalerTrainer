@@ -23,7 +23,6 @@ from pathlib import Path
 from tqdm import tqdm
 import sys
 import random
-import warnings
 
 try:
     import cv2

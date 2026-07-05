@@ -43,14 +43,11 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR
 from torch.cuda.amp import autocast
-from torchvision import transforms
 import torchvision.models as models
 from pathlib import Path
 import numpy as np
 from tqdm import tqdm
 import argparse
-import warnings
-import time
 import psutil
 import gc
 
@@ -73,12 +70,6 @@ try:
     HAS_METRICS = True
 except ImportError:
     HAS_METRICS = False
-
-try:
-    import coremltools as ct
-    HAS_COREML = True
-except ImportError:
-    HAS_COREML = False
 
 try:
     import psutil
@@ -119,13 +110,13 @@ def verify_gradient_flow(model, epoch, batch_idx):
     print(f"     Gradient L2 norm:                {total_norm:.6f}")
     
     if none_grad_params == num_params:
-        print(f"     ❌ NO GRADIENTS FLOWING — backward() is broken!")
+        print("     ❌ NO GRADIENTS FLOWING — backward() is broken!")
     elif total_norm < 1e-10:
-        print(f"     ⚠️  Gradient norm near zero — learning rate may be too small")
+        print("     ⚠️  Gradient norm near zero — learning rate may be too small")
     elif total_norm > 100:
-        print(f"     ⚠️  Gradient norm very large — may need stronger clipping")
+        print("     ⚠️  Gradient norm very large — may need stronger clipping")
     else:
-        print(f"     ✅ Gradients flowing normally")
+        print("     ✅ Gradients flowing normally")
 
 
 # ============================================================================
@@ -242,7 +233,7 @@ def get_mps_memory_status():
             'vms_gb': mem_info.vms / (1024**3),
             'percent': process.memory_percent(),
         }
-    except:
+    except Exception:
         return None
 
 def adaptive_batch_cleanup(device, epoch, batch_idx, memory_threshold_gb=12):
@@ -253,11 +244,11 @@ def adaptive_batch_cleanup(device, epoch, batch_idx, memory_threshold_gb=12):
     mem_status = get_mps_memory_status()
     if mem_status and mem_status['rss_gb'] > memory_threshold_gb:
         print(f"\n⚠️  Memory high ({mem_status['rss_gb']:.1f}GB @ epoch {epoch}, batch {batch_idx})")
-        print(f"    Aggressive cleanup triggered")
+        print("    Aggressive cleanup triggered")
         torch.mps.empty_cache()
         torch.mps.synchronize()
         import gc
-        collected = gc.collect()
+        gc.collect()
         mem_status_after = get_mps_memory_status()
         if mem_status_after:
             print(f"    After cleanup: {mem_status_after['rss_gb']:.1f}GB")
@@ -341,7 +332,7 @@ def validate_inputs(lr_dir, hr_dir, pretrained):
     pretrained_path = Path(pretrained)
     if not pretrained_path.exists():
         errors.append(f"❌ Pretrained checkpoint not found: {pretrained}")
-    elif not pretrained_path.suffix in ['.pth', '.pt']:
+    elif pretrained_path.suffix not in ['.pth', '.pt']:
         errors.append(f"❌ Pretrained file is not .pth: {pretrained}")
     
     if errors:
@@ -379,12 +370,12 @@ def check_system_resources(device):
                 print(f"   Total memory: {total_gb:.1f} GB")
                 print(f"   Available: {available_gb:.1f} GB")
                 if available_gb < 4:
-                    print(f"   ⚠️  WARNING: Less than 4GB available!")
+                    print("   ⚠️  WARNING: Less than 4GB available!")
             except Exception as e:
                 print(f"   Could not read system memory: {e}")
     
     elif device.type == 'cuda':
-        print(f"✅ CUDA")
+        print("✅ CUDA")
         try:
             total_mem = torch.cuda.get_device_properties(0).total_memory / (1024**3)
             print(f"   Total GPU memory: {total_mem:.1f} GB")
@@ -392,7 +383,7 @@ def check_system_resources(device):
             print(f"   Could not read GPU memory: {e}")
     
     else:
-        print(f"⚠️  CPU mode (will be VERY slow)")
+        print("⚠️  CPU mode (will be VERY slow)")
     
     print("="*70 + "\n")
 
@@ -500,7 +491,7 @@ def cleanup_tensors(tensor_dict, device):
         if tensor_dict[key] is not None:
             try:
                 del tensor_dict[key]
-            except:
+            except Exception:
                 pass
     
     if device and device.type == 'mps':
@@ -797,7 +788,7 @@ class BrightnessNormalizedPerceptualLoss(nn.Module):
                 for key in list(feat_dict.keys()):
                     try:
                         del feat_dict[key]
-                    except:
+                    except Exception:
                         pass
                 feat_dict.clear()
             
@@ -881,7 +872,7 @@ class LocalStatisticsLoss(nn.Module):
             # Final check for NaN
             if torch.isnan(mean_loss) or torch.isinf(mean_loss) or \
                torch.isnan(std_loss) or torch.isinf(std_loss):
-                print(f"⚠️  LocalStatisticsLoss: NaN/Inf detected. Returning zero loss.")
+                print("⚠️  LocalStatisticsLoss: NaN/Inf detected. Returning zero loss.")
                 del mean_loss, std_loss
                 return torch.tensor(0.0, device=pred.device, dtype=pred.dtype)
             
@@ -1077,7 +1068,7 @@ class SoftHistogramLoss(nn.Module):
             try:
                 del pred_mask, target_mask, pred_high, target_high
                 del pred_high_vals, target_high_vals
-            except:
+            except Exception:
                 pass
             
             if torch.backends.mps.is_available():
@@ -1437,7 +1428,7 @@ class VideoFramePairDataset(Dataset):
                 if arr is not None:
                     try:
                         del arr
-                    except:
+                    except Exception:
                         pass
     
     def _get_patch(self, lr_img, hr_img):
@@ -1594,12 +1585,12 @@ class SuperUltraCompact(nn.Module):
         self.body = nn.Sequential(*body_layers)
         self.scale = scale
         
-        print(f"✅ Model Architecture:")
+        print("✅ Model Architecture:")
         print(f"   Input: {in_nc}ch, Output: {out_nc}ch, Features: {nf}")
         print(f"   Conv-Norm pairs: {nc}")
         print(f"   Scale factor: {scale}x")
         print(f"   Activations: {'Enabled (LeakyReLU 0.2)' if use_activations else 'DISABLED'}")
-        print(f"   Padding mode: 'reflect' (consistent throughout)")
+        print("   Padding mode: 'reflect' (consistent throughout)")
 
     def _make_norm_layer(self, num_features):
         """Create InstanceNorm layer with ONLY weight (matching original architecture)"""
@@ -1697,7 +1688,7 @@ class EMA:
                 try:
                     if name in self.shadow:
                         del self.shadow[name]
-                except Exception as e:
+                except Exception:
                     pass
             
             # 2. Delete backup tensors
@@ -1706,7 +1697,7 @@ class EMA:
                 try:
                     if name in self.backup:
                         del self.backup[name]
-                except Exception as e:
+                except Exception:
                     pass
             
             # 3. Clear dicts
@@ -1845,7 +1836,7 @@ def load_pretrained(model, checkpoint_path, device):
                         del state_dict[key]
             
             missing, unexpected = model.load_state_dict(state_dict, strict=False)
-            print(f"  ✅ Remapped successfully! Loaded keys")
+            print("  ✅ Remapped successfully! Loaded keys")
             if missing:
                 print(f"     Missing: {list(missing)[:5]}...")
             if unexpected:
@@ -1917,7 +1908,8 @@ def train_epoch(model, dataloader, optimizer, criterion_l1, criterion_perceptual
                 criterion_log_tone=None, log_tone_weight=0.0,
                 writer=None,
                 criterion_mean_lum=None, mean_lum_weight=0.0,
-                criterion_percentile=None, percentile_weight=0.0):
+                criterion_percentile=None, percentile_weight=0.0,
+                output_dir=None):
     """
     Training epoch — FIXED: Loss computed as connected tensor for proper gradient flow.
     """
@@ -2077,15 +2069,13 @@ def train_epoch(model, dataloader, optimizer, criterion_l1, criterion_perceptual
                 sr_np = test_sr[0].cpu().numpy().transpose(1, 2, 0)
                 sr_np = (sr_np * 255).astype(np.uint8)
                 sr_bgr = cv2.cvtColor(sr_np, cv2.COLOR_RGB2BGR)
-                debug_path = os.path.join(
-                    args.output_dir if hasattr(args, 'output_dir') else './checkpoints',
-                    f'debug_epoch_{epoch:03d}.png'
-                )
+                debug_dir = output_dir or './checkpoints'
+                debug_path = os.path.join(debug_dir, f'debug_epoch_{epoch:03d}.png')
                 cv2.imwrite(debug_path, sr_bgr)
             
             del test_lr, test_hr, test_sr
             model.train()
-        except:
+        except Exception:
             model.train()
     
     return avg_loss
@@ -2109,6 +2099,7 @@ def validate(model, dataloader, criterion_l1, criterion_perceptual,
     
     with torch.no_grad():
         for batch_idx, batch in enumerate(tqdm(dataloader, desc="Validation", leave=False)):
+            lr = hr = sr = None
             try:
                 # ========== LOAD DATA ==========
                 if len(batch) == 2:
@@ -2159,7 +2150,7 @@ def validate(model, dataloader, criterion_l1, criterion_perceptual,
                             print(f"⚠️  Metrics error at batch {batch_idx}: {e}")
                 
                 # ========== CLEANUP ==========
-                del sr, lr, hr
+                sr = lr = hr = None
                 
                 # ✅ FIXED: Periodic cleanup
                 if batch_idx % 5 == 0:
@@ -2167,10 +2158,7 @@ def validate(model, dataloader, criterion_l1, criterion_perceptual,
                 
             except Exception as e:
                 print(f"⚠️  Validation batch {batch_idx} error: {e}")
-                try:
-                    del sr, lr, hr
-                except:
-                    pass
+                sr = lr = hr = None
                 continue
     
     # ========== COMPILE RESULTS ==========
@@ -2664,7 +2652,7 @@ def main():
     # Device selection
     if torch.backends.mps.is_available():
         device = torch.device('mps')
-        print(f"✅ Using device: MPS (Apple Silicon)")
+        print("✅ Using device: MPS (Apple Silicon)")
         torch.set_float32_matmul_precision('high')
     elif torch.cuda.is_available():
         device = torch.device('cuda')
@@ -2673,7 +2661,7 @@ def main():
             torch.set_float32_matmul_precision('high')
     else:
         device = torch.device('cpu')
-        print(f"⚠️  Using device: CPU")
+        print("⚠️  Using device: CPU")
     
     check_system_resources(device)
 
@@ -2875,7 +2863,7 @@ def main():
             pretrain_path = os.path.join(args.output_dir, 'pretrained_output_check.png')
             cv2.imwrite(pretrain_path, sample_bgr)
             print(f"   ✅ Pretrained sample saved: {pretrain_path}")
-            print(f"   → Check this image BEFORE training starts!")
+            print("   → Check this image BEFORE training starts!")
         
         del test_lr, test_hr, test_sr
         if device.type == 'mps':
@@ -2949,10 +2937,11 @@ def main():
                 mean_lum_weight=args.mean_lum_weight,
                 criterion_percentile=criterion_percentile,
                 percentile_weight=args.percentile_weight,
+                output_dir=args.output_dir,
             )
         except RuntimeError as e:
             if "out of memory" in str(e).lower():
-                print(f"\n❌ OOM error. Try: --batch_size 1 --accumulation_steps 24 --patch_size 96")
+                print("\n❌ OOM error. Try: --batch_size 1 --accumulation_steps 24 --patch_size 96")
                 sys.exit(1)
             else:
                 raise e
